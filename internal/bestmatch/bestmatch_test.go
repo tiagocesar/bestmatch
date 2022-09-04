@@ -1,6 +1,7 @@
 package bestmatch
 
 import (
+	"context"
 	"testing"
 
 	"github.com/google/uuid"
@@ -14,7 +15,7 @@ type repoFake struct {
 	GetPartnerInfoFn func(id uuid.UUID) (*models.Partner, error)
 }
 
-func (r repoFake) GetPartnerInfo(id uuid.UUID) (*models.Partner, error) {
+func (r repoFake) GetPartnerInfo(_ context.Context, id uuid.UUID) (*models.Partner, error) {
 	return r.GetPartnerInfoFn(id)
 }
 
@@ -47,7 +48,7 @@ func Test_GetPartnerInfo(t *testing.T) {
 
 			svc := NewService(test.repo)
 
-			_, err := svc.GetPartnerInfo(test.id)
+			_, err := svc.GetPartnerInfo(context.Background(), test.id)
 
 			if err != nil {
 				require.True(t, uuid.IsInvalidLengthError(err))

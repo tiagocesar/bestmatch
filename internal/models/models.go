@@ -11,3 +11,10 @@ type Partner struct {
 	Radius  int       `db,json:"radius"`
 	Rating  int       `db,json:"rating"`
 }
+
+// PartnerResult enriches Partner info with extra query-specific information
+type PartnerResult struct {
+	Ranking  int     `json:"ranking"`
+	Distance float32 `json:"distance"` // Distance in km
+	Partner
+}

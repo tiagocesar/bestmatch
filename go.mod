@@ -3,6 +3,7 @@ module github.com/tiagocesar/bestmatch
 go 1.19
 
 require (
+	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.6
 	github.com/stretchr/testify v1.7.0

@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/google/uuid"
 
@@ -13,8 +14,19 @@ type repository struct {
 	db *sql.DB
 }
 
-func NewRepository(db *sql.DB) *repository {
-	return &repository{db: db}
+func NewRepository(user, pass, host, port, schema string) (*repository, error) {
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, pass, host, port, schema)
+
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+	return &repository{db: db}, nil
 }
 
 func (r *repository) GetPartnerInfo(ctx context.Context, id uuid.UUID) (*models.Partner, error) {

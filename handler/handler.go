@@ -18,6 +18,7 @@ import (
 
 type matchRetriever interface {
 	GetPartnerInfo(ctx context.Context, id string) (*models.Partner, error)
+	GetMatches(ctx context.Context, req models.ListPartnersByMatchRequest) (*[]models.PartnerResult, error)
 }
 
 type handler struct {
@@ -31,8 +32,10 @@ func NewHandler(service matchRetriever) *handler {
 func (h *handler) ConfigureAndServe(port string) {
 	router := chi.NewRouter()
 	router.Use(middleware.Recoverer)
+	router.Use(middleware.StripSlashes)
 
 	router.Get("/health", health)
+	router.Get("/partners", h.listPartnersByMatch)
 	router.Get("/partners/{id}", h.getPartner)
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), router); err != nil {
@@ -43,6 +46,28 @@ func (h *handler) ConfigureAndServe(port string) {
 func health(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprint(w, "ok")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *handler) listPartnersByMatch(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+
+	var matchRequest models.ListPartnersByMatchRequest
+	err := json.NewDecoder(req.Body).Decode(&matchRequest)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	partners, err := h.service.GetMatches(ctx, matchRequest)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	j, _ := json.Marshal(partners)
+
+	w.WriteHeader(http.StatusOK)
+	_, _ = fmt.Fprint(w, string(j))
 }
 
 // getPartner gets information about a specific partner

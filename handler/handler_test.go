@@ -132,6 +132,19 @@ func Test_listPartnersByMatch(t *testing.T) {
 			expectedRespCode: http.StatusOK,
 			expectedResponse: partnerResultStr,
 		},
+		{
+			name:             "invalid request body",
+			expectedRespCode: http.StatusInternalServerError,
+		},
+		{
+			name:        "internal server error from the repo",
+			requestBody: getMatchRequestStr,
+			matchRetriever: matchRetrieverFake{GetMatchesFn: func(req models.ListPartnersByMatchRequest) (*[]models.PartnerResult, error) {
+				return nil, sql.ErrNoRows
+			}},
+			expectedRespCode: http.StatusInternalServerError,
+			expectedResponse: "sql: no rows in result set",
+		},
 	}
 
 	for _, test := range tests {

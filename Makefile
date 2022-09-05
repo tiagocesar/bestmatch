@@ -10,6 +10,8 @@ run:
 	go run ./cmd/api/
 
 integration-tests:
+	docker compose down --volumes
+	sleep 2
 	docker compose up -d
 	sleep 2
 	go test -v -tags=integration ./...

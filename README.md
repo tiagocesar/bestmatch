@@ -61,9 +61,9 @@ The response is a list of partners, order by best match (rating and then distanc
 
 ### Get info about a specific partner
 
-To get info about a specific partner, call `http://localhost:8080/partner/` passing a partner ID in uuid form (in any valid form):  
+To get info about a specific partner, call `http://localhost:8080/partners/` passing a partner ID in uuid form (in any valid form):  
 
-`http://localhost:8080/partner/b276cb54ac524f8cadb1afce5ced67c4`
+`http://localhost:8080/partners/b276cb54ac524f8cadb1afce5ced67c4`
 
 ```json
 200 OK

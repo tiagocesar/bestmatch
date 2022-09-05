@@ -10,6 +10,7 @@ import (
 
 type matchRetriever interface {
 	GetPartnerInfo(ctx context.Context, id uuid.UUID) (*models.Partner, error)
+	GetMatches(ctx context.Context, req models.ListPartnersByMatchRequest) (*[]models.PartnerResult, error)
 }
 
 type service struct {
@@ -32,4 +33,19 @@ func (s *service) GetPartnerInfo(ctx context.Context, id string) (*models.Partne
 	}
 
 	return p, nil
+}
+
+func (s *service) GetMatches(ctx context.Context,
+	req models.ListPartnersByMatchRequest) (*[]models.PartnerResult, error) {
+	// Validating the request model
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
+
+	partners, err := s.repo.GetMatches(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return partners, nil
 }

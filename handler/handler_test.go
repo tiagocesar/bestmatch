@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -18,10 +19,16 @@ import (
 
 type matchRetrieverFake struct {
 	GetPartnerInfoFn func(id string) (*models.Partner, error)
+	GetMatchesFn     func(req models.ListPartnersByMatchRequest) (*[]models.PartnerResult, error)
 }
 
-func (m matchRetrieverFake) GetPartnerInfo(ctx context.Context, id string) (*models.Partner, error) {
+func (m matchRetrieverFake) GetPartnerInfo(_ context.Context, id string) (*models.Partner, error) {
 	return m.GetPartnerInfoFn(id)
+}
+
+func (m matchRetrieverFake) GetMatches(_ context.Context,
+	req models.ListPartnersByMatchRequest) (*[]models.PartnerResult, error) {
+	return m.GetMatchesFn(req)
 }
 
 func Test_getPartner(t *testing.T) {
@@ -41,7 +48,7 @@ func Test_getPartner(t *testing.T) {
 		{
 			name:             "invalid id format",
 			expectedRespCode: http.StatusBadRequest,
-			matchRetriever: matchRetrieverFake{func(id string) (*models.Partner, error) {
+			matchRetriever: matchRetrieverFake{GetPartnerInfoFn: func(id string) (*models.Partner, error) {
 				_, err := uuid.Parse("invalid string")
 				return nil, err
 			}},
@@ -50,14 +57,14 @@ func Test_getPartner(t *testing.T) {
 		{
 			name:             "partner not found",
 			expectedRespCode: http.StatusNotFound,
-			matchRetriever: matchRetrieverFake{func(id string) (*models.Partner, error) {
+			matchRetriever: matchRetrieverFake{GetPartnerInfoFn: func(id string) (*models.Partner, error) {
 				return nil, sql.ErrNoRows
 			}},
 		},
 		{
 			name:             "internal server error",
 			expectedRespCode: http.StatusInternalServerError,
-			matchRetriever: matchRetrieverFake{func(id string) (*models.Partner, error) {
+			matchRetriever: matchRetrieverFake{GetPartnerInfoFn: func(id string) (*models.Partner, error) {
 				return nil, errors.New("random internal error")
 			}},
 		},
@@ -96,5 +103,81 @@ func Test_getPartner(t *testing.T) {
 				require.Equal(t, expected, body)
 			}
 		})
+	}
+}
+
+func Test_listPartnersByMatch(t *testing.T) {
+	j, _ := json.Marshal(getMatchRequest())
+	getMatchRequestStr := string(j)
+
+	j, _ = json.Marshal(&[]models.PartnerResult{{}})
+	partnerResultStr := string(j)
+
+	tests := []struct {
+		name           string
+		requestBody    string
+		matchRetriever matchRetrieverFake
+
+		expectedRespCode int    // Always checked
+		expectedResponse string // Not checked if empty
+	}{
+		{
+			name:        "success",
+			requestBody: getMatchRequestStr,
+			matchRetriever: matchRetrieverFake{GetMatchesFn: func(req models.ListPartnersByMatchRequest) (*[]models.PartnerResult, error) {
+				return &[]models.PartnerResult{
+					{},
+				}, nil
+			}},
+			expectedRespCode: http.StatusOK,
+			expectedResponse: partnerResultStr,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			rr := httptest.NewRecorder()
+
+			req, err := http.NewRequest(http.MethodGet, "/partners", strings.NewReader(test.requestBody))
+			require.NoError(t, err)
+
+			h := handler{service: test.matchRetriever}
+
+			h.listPartnersByMatch(rr, req)
+
+			require.Equal(t, test.expectedRespCode, rr.Code)
+
+			body := rr.Body.String()
+
+			if body != "" {
+				expected := test.expectedResponse
+
+				if expected == "" {
+					j, _ := json.Marshal(&models.PartnerResult{})
+					expected = string(j)
+				}
+
+				require.Equal(t, expected, body)
+			}
+		})
+	}
+}
+
+func getMatchRequest() models.ListPartnersByMatchRequest {
+	return models.ListPartnersByMatchRequest{
+		Materials:   []string{"asd"},
+		Area:        100.0,
+		PhoneNumber: "0123456789",
+		Address: struct {
+			Lat  string `json:"lat"`
+			Long string `json:"long"`
+		}(struct {
+			Lat  string
+			Long string
+		}{Lat: "0.0", Long: "0.0"}),
 	}
 }

@@ -4,6 +4,10 @@ create database bestmatch;
 
 \c bestmatch;
 
+-- Enabling distance calculations
+create extension cube;
+create extension earthdistance;
+
 create table if not exists materials
 (
     id   uuid
@@ -53,7 +57,7 @@ VALUES ('07cab731-d981-4915-9444-cc997eec351f', 'wood'),
 INSERT INTO partners (id, name, address, radius, rating)
 VALUES ('b276cb54-ac52-4f8c-adb1-afce5ced67c4', 'Acme Inc.',      point(4.8986299, 52.3706706), 10, 5.0),
        ('6360d1e7-ccd0-43d0-8bf5-d7bc807213d3', 'De Twee Broers', point(4.8964412, 52.3706706), 10, 4.3),
-       ('785bfeb5-b982-4c56-88ca-bbd7a49cee4c', 'Really far',     point(5.073058, 52.421221),   20, 4.5);
+       ('785bfeb5-b982-4c56-88ca-bbd7a49cee4c', 'Really far',     point(5.073058, 52.421221),   12, 4.5);
 
 INSERT INTO partners_materials (partner_id, material_id)
 VALUES ('b276cb54-ac52-4f8c-adb1-afce5ced67c4', '07cab731-d981-4915-9444-cc997eec351f'),

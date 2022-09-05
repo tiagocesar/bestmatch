@@ -15,6 +15,6 @@ type Partner struct {
 // PartnerResult enriches Partner info with extra query-specific information
 type PartnerResult struct {
 	Ranking  int     `json:"ranking"`
-	Distance float32 `json:"distance"` // Distance in km
+	Distance float32 `json:"distance_km"` // Distance in km
 	Partner
 }

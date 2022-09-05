@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	_ "github.com/lib/pq"
 
 	"github.com/tiagocesar/bestmatch/internal/models"
 )

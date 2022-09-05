@@ -8,3 +8,8 @@ run:
 	DB_SCHEMA=bestmatch \
 	HTTP_PORT=8080 \
 	go run ./cmd/api/
+
+integration-tests:
+	docker compose up -d
+	sleep 2
+	go test -v -tags=integration ./...

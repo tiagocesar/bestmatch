@@ -61,7 +61,6 @@ func (h *handler) listPartnersByMatch(w http.ResponseWriter, req *http.Request) 
 	partners, err := h.service.GetMatches(ctx, matchRequest)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = fmt.Fprint(w, err.Error())
 		return
 	}
 

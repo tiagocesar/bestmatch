@@ -143,7 +143,6 @@ func Test_listPartnersByMatch(t *testing.T) {
 				return nil, sql.ErrNoRows
 			}},
 			expectedRespCode: http.StatusInternalServerError,
-			expectedResponse: "sql: no rows in result set",
 		},
 	}
 

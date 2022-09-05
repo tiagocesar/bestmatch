@@ -11,7 +11,7 @@ type Partner struct {
 	Name    string    `db,json:"name"`
 	Address string    `db,json:"address"`
 	Radius  int       `db,json:"radius"`
-	Rating  int       `db,json:"rating"`
+	Rating  float32   `db,json:"rating"`
 }
 
 // PartnerResult enriches Partner info with extra query-specific information

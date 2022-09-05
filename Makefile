@@ -1,6 +1,6 @@
 run:
 	docker compose up -d
-	sleep 5
+	sleep 2
 	DB_USER=root \
 	DB_PASS=password \
 	DB_HOST=localhost \

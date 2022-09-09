@@ -1,6 +1,5 @@
 run:
-	docker compose up -d
-	sleep 2
+	docker compose up -d --wait
 	DB_USER=root \
 	DB_PASS=password \
 	DB_HOST=localhost \
@@ -12,6 +11,5 @@ run:
 integration-tests:
 	docker compose down --volumes
 	sleep 2
-	docker compose up -d
-	sleep 2
+	docker compose up -d --wait
 	go test -v -tags=integration ./...

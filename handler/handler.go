@@ -54,7 +54,7 @@ func (h *handler) listPartnersByMatch(w http.ResponseWriter, req *http.Request) 
 	var matchRequest models.ListPartnersByMatchRequest
 	err := json.NewDecoder(req.Body).Decode(&matchRequest)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (h *handler) listPartnersByMatch(w http.ResponseWriter, req *http.Request) 
 	j, _ := json.Marshal(partners)
 
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprint(w, string(j))
+	_, _ = w.Write(j)
 }
 
 // getPartner gets information about a specific partner
@@ -94,5 +94,5 @@ func (h *handler) getPartner(w http.ResponseWriter, req *http.Request) {
 	j, _ := json.Marshal(partner)
 
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprint(w, string(j))
+	_, _ = w.Write(j)
 }
